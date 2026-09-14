@@ -26,6 +26,11 @@ SQL you can read, data tests, and a documentation site.
 anything. It assumes data is already *in* the warehouse and transforms it from
 there. A provided script plays the role your Week 2 pipeline played.
 
+This repo is intentionally left in a failing starter state. The models and a
+subset of the tests are there to guide you, but they are not complete until you
+fill them in. If you run `uv run dbt build` before finishing the week, it should
+fail for exactly the missing work.
+
 ## What's in this repo
 
 | Path | What it is |
@@ -147,10 +152,10 @@ Five ideas, and you know three of them already:
 
 ### Day 3 — tests, deliberate breakage, and docs
 
-1. **Turn on the tests.** In `models/schema.yml`, uncomment the
-   `orders_deduped` block (the worked example), then write the TODO tests for
-   the other three models — including `accepted_values` on `status` and a
-   `relationships` test from `clean_orders.customer_id` to `customers_deduped`.
+1. **Start from the failing contract.** The starter repo is intentionally not
+   done. The tests in `models/schema.yml` are already active and should fail
+   until the work is implemented. Read the failing checks, then fix the models
+   and add the remaining assertions only where the TODOs call for them.
    ```bash
    uv run dbt test
    ```
@@ -159,11 +164,11 @@ Five ideas, and you know three of them already:
    ```bash
    uv run dbt run && uv run dbt test
    ```
-   Watch `unique_orders_deduped_order_id` fail with a violation count. Open the
-   compiled test under `target/compiled/` and run its SQL with `dbt show
-   --inline` to *see* the offending rows. Restore the filter, get back to green.
-   This is the data-quality story: the bug that silently doubled numbers in
-   Week 2 is now a one-line contract that fails loudly.
+   Watch the failing unique test with a violation count. Open the compiled test
+   under `target/compiled/` and run its SQL with `dbt show --inline` to *see*
+   the offending rows. Restore the filter, get back to green. This is the
+   data-quality story: the bug that silently doubled numbers in Week 2 is now a
+   one-line contract that fails loudly.
 3. **Generate the docs site.**
    ```bash
    uv run dbt docs generate
@@ -217,8 +222,3 @@ what your Week 2 pipeline produced. Same data, same SQL — it should.
 - **Windows** — if VS Code doesn't pick up the env, Command Palette → *Python:
   Select Interpreter* → the one under `.venv`.
 
----
-
-### Your notes (fill in on Day 3)
-
-- Fill out DECISIONS.md

@@ -16,6 +16,12 @@
 -- Checkpoint:
 --   uv run dbt run
 --   uv run dbt show --select orders_deduped
---
--- Until you fill this in, the placeholder keeps `dbt run` green.
-select 'TODO: port your Week 2 orders_deduped SQL here' as todo
+WITH ranked AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY updated_at DESC) AS _rn
+    FROM raw.orders
+)
+SELECT * EXCLUDE (_rn)
+FROM ranked
+WHERE _rn = 1

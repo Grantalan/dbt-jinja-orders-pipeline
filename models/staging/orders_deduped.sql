@@ -20,7 +20,7 @@ WITH ranked AS (
     SELECT
         *,
         ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY updated_at DESC) AS _rn
-    FROM raw.orders
+    FROM {{ source('raw', 'orders') }}
 )
 SELECT * EXCLUDE (_rn)
 FROM ranked

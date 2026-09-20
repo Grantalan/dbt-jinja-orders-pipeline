@@ -25,4 +25,13 @@
 --   uv run dbt show --select customer_order_summary
 --
 -- Until you fill this in, the placeholder keeps `dbt run` green.
-select 'TODO: port your Week 2 customer_order_summary SQL here' as todo
+-- select 'TODO: port your Week 2 customer_order_summary SQL here' as todo
+SELECT
+    c.customer_id,
+    c.name,
+    COUNT(*) AS order_count,
+    SUM(o.line_total) AS total_revenue
+FROM {{ ref('clean_orders') }} o
+JOIN {{ ref('customers_deduped') }} c ON o.customer_id = c.customer_id
+GROUP BY c.customer_id, c.name
+HAVING COUNT(*) >= {{ var('min_orders') }}

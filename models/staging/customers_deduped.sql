@@ -17,4 +17,13 @@
 --   uv run dbt show --select customers_deduped
 --
 -- Until you fill this in, the placeholder keeps `dbt run` green.
-select 'TODO: lift your Week 2 customer-dedup CTE into this model' as todo
+-- select 'TODO: lift your Week 2 customer-dedup CTE into this model' as todo
+WITH ranked AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY record_version DESC) AS _rn
+    FROM {{ source('raw', 'customers') }}
+)
+SELECT * EXCLUDE (_rn)
+FROM ranked
+WHERE _rn = 1

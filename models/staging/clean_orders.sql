@@ -20,4 +20,23 @@
 --   uv run dbt run --select clean_orders
 --
 -- Until you fill this in, the placeholder keeps `dbt run` green.
-select 'TODO: port your Week 2 clean_orders SQL here' as todo
+-- select 'TODO: port your Week 2 clean_orders SQL here' as todo
+WITH cleaned AS (
+    SELECT
+        order_id,
+        customer_id,
+        sku,
+        TRY_CAST(quantity AS INTEGER) AS quantity,
+        TRY_CAST(REGEXP_REPLACE(price, '[^0-9.]', '', 'g') AS DECIMAL(18, 2)) AS price,
+        COALESCE(NULLIF(LOWER(TRIM(status)), ''), 'unknown') AS status,
+        COALESCE(
+            TRY_CAST(order_date AS DATE),
+            TRY_STRPTIME(order_date, '%d-%b-%Y')::DATE,
+            TRY_STRPTIME(order_date, '%m/%d/%Y')::DATE
+        ) AS order_date,
+        updated_at
+    FROM {{ ref('orders_deduped') }}
+)
+SELECT *, quantity * price AS line_total
+FROM cleaned
+WHERE quantity IS NOT NULL AND price IS NOT NULL

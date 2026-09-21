@@ -1,3 +1,28 @@
+## Project summary
+
+Ported a hand-rolled DuckDB + Python SQL pipeline (Week 2) into **dbt**: raw
+order and customer data flows through `source()`-declared inputs, staged
+dedup/cleaning models, and a final mart — all wired together with `ref()`
+instead of hard-coded table names, so dbt derives the build order and draws
+the dependency graph below on its own. Money parsing, three-format date
+parsing, and the customer/order dedup logic (`ROW_NUMBER()` + `QUALIFY`-style
+filtering) carried over unchanged; what's new is that every model is now
+independently testable (`not_null` / `unique` data tests on primary keys),
+independently buildable (`dbt run --select <model>`), and documented in a
+generated docs site with full column-level lineage.
+
+<p align="center">
+  <img src="docs/images/dbt-lineage-graph.jpeg" alt="dbt lineage graph: raw.orders and raw.customers flowing through staging models into the customer_order_summary mart" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/images/dbt-docs-model-view.jpeg" alt="dbt docs site showing the customers_deduped model's compiled SQL, description, and lineage sidebar" width="100%">
+</p>
+
+**Stack:** dbt-core + dbt-duckdb, Jinja (`source()` / `ref()` / `var()`), DuckDB, `uv`
+
+---
+
 # Week 4 — Same SQL. Grown-Up Tooling.
 
 In Week 2 you wrote real SQL against messy data: window-function dedup, money

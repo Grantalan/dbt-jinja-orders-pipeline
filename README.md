@@ -1,25 +1,28 @@
-## Project summary
+# dbt Jinja Orders Pipeline
 
-Ported a hand-rolled DuckDB + Python SQL pipeline (Week 2) into **dbt**: raw
-order and customer data flows through `source()`-declared inputs, staged
-dedup/cleaning models, and a final mart — all wired together with `ref()`
-instead of hard-coded table names, so dbt derives the build order and draws
-the dependency graph below on its own. Money parsing, three-format date
-parsing, and the customer/order dedup logic (`ROW_NUMBER()` + `QUALIFY`-style
-filtering) carried over unchanged; what's new is that every model is now
-independently testable (`not_null` / `unique` data tests on primary keys),
-independently buildable (`dbt run --select <model>`), and documented in a
-generated docs site with full column-level lineage.
+Ported a hand-rolled DuckDB + Python SQL pipeline into **dbt** — same
+transform logic, now with lineage, tests, and docs generated for free.
+
+`dbt-core` · `dbt-duckdb` · Jinja (`source` / `ref` / `var`) · DuckDB · `uv`
 
 <p align="center">
-  <img src="docs/images/dbt-lineage-graph.jpeg" alt="dbt lineage graph: raw.orders and raw.customers flowing through staging models into the customer_order_summary mart" width="100%">
+  <img src="docs/images/dbt-lineage-graph.jpeg" width="100%" alt="dbt lineage graph">
+  <br><sub>dbt derived this build order and dependency graph from <code>ref()</code> / <code>source()</code> calls — no manual sequencing.</sub>
 </p>
 
 <p align="center">
-  <img src="docs/images/dbt-docs-model-view.jpeg" alt="dbt docs site showing the customers_deduped model's compiled SQL, description, and lineage sidebar" width="100%">
+  <img src="docs/images/dbt-docs-model-view.jpeg" width="100%" alt="dbt docs site model view">
+  <br><sub>Every model — compiled SQL, description, and lineage — browsable in a generated docs site.</sub>
 </p>
 
-**Stack:** dbt-core + dbt-duckdb, Jinja (`source()` / `ref()` / `var()`), DuckDB, `uv`
+**What changed going from raw SQL to dbt:**
+
+- Raw tables declared as `source()`s instead of hard-coded table names
+- Models chained with `ref()`, so dbt derives build order and draws the DAG automatically
+- Money/date parsing and the `ROW_NUMBER()` dedup logic carried over unchanged
+- Primary keys covered by `not_null` / `unique` data tests — a real, enforced contract
+- The `min_orders` bound parameter became a project `var()`, overridable from the CLI
+- `dbt build` — one command runs + tests everything, in DAG order
 
 ---
 
